@@ -13,8 +13,8 @@ use goban::rules::EndGame;
 use goban::rules::Rule;
 use goban::rules::Player;
 
-#[pymodule]
-pub fn rusty_goban(_py: Python, m: &PyModule) -> PyResult<()> {
+#[pymodinit]
+pub fn libshusaku(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<IGame>()?;
     Ok(())
 }
@@ -76,13 +76,12 @@ impl IGame {
     /// (black score, white score)
     /// returns Big value if resign
     ///
-    pub fn end_game(&self) -> PyResult<Option<(f32, f32)>> {
+    pub fn outcome(&self) -> PyResult<Option<(f32, f32)>> {
         Ok(match self.game.outcome() {
             None => None,
             Some(endgame) => match endgame {
                 EndGame::Score(x, y) => Some((x, y)),
                 EndGame::WinnerByResign(res) => match res {
-
                     // White win
                     Player::White => Some((0., 9999.)),
                     // Black win
@@ -92,6 +91,14 @@ impl IGame {
         })
     }
 
+    /// Get the current turn
+    pub fn turn(&self) -> bool {
+        match self.game.turn() {
+            Player::White => true,
+            Player::Black => false
+        }
+    }
+
     ///
     /// Don't check if the play is legal.
     ///
@@ -99,14 +106,17 @@ impl IGame {
         Ok(self.game.play(&Move::Play(play.0, play.1)))
     }
 
+    /// Pass
     pub fn pass(&mut self) -> PyResult<()> {
         Ok(self.game.play(&Move::Pass))
     }
 
+    /// Resign
     pub fn resign(&mut self) -> PyResult<()> {
         Ok(self.game.play(&Move::Resign))
     }
 
+    /// All the legals
     pub fn legals(&self) -> PyResult<Vec<Coord>> {
         Ok(self.game.legals().collect())
     }
