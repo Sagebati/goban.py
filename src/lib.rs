@@ -1,6 +1,5 @@
 #![feature(custom_attribute)]
 #![feature(specialization)]
-#![feature(uniform_paths)]
 
 extern crate pyo3;
 
@@ -13,7 +12,7 @@ use goban::rules::EndGame;
 use goban::rules::Rule;
 use goban::rules::Player;
 
-#[pymodinit]
+#[pymodule]
 pub fn libshusaku(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<IGame>()?;
     Ok(())
@@ -31,7 +30,7 @@ impl IGame {
     /// By default the tule are chinnese
     ///
     pub fn __new__(obj: &PyRawObject, size: usize) -> PyResult<()> {
-        obj.init(|_| {
+        obj.init(|| {
             IGame { game: Game::new(GobanSizes::Custom(size), Rule::Chinese) }
         })
     }

@@ -13,5 +13,5 @@ goban = {git = "https://gitlab.com/SamBlaise/goban.git", branch = "dev"}
 mcts = "0.2.0"
 
 [dependencies.pyo3]
-version = "0.5.3"
+version = "0.6.0-alpha.2"
 features = ["extension-module"]
