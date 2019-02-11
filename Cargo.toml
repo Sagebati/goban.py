@@ -1,0 +1,17 @@
+[package]
+name = "libshusaku"
+version = "0.1.0"
+authors = ["Samuel Batissou <samuelbatissou@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "libshusaku"
+crate_type = ["cdylib"]
+
+[dependencies]
+goban = {git = "https://gitlab.com/SamBlaise/goban.git", branch = "dev"}
+mcts = "0.2.0"
+
+[dependencies.pyo3]
+version = "0.5"
+features = ["extension-module"]

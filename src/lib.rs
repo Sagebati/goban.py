@@ -1,0 +1,126 @@
+#![feature(custom_attribute)]
+#![feature(specialization)]
+#![feature(uniform_paths)]
+
+extern crate pyo3;
+
+use pyo3::prelude::*;
+use goban::rules::game::Game;
+use goban::rules::game::GobanSizes;
+use goban::rules::game::Move;
+use goban::pieces::util::Coord;
+use goban::rules::EndGame;
+use goban::rules::Rule;
+use goban::rules::Player;
+
+#[pymodule]
+pub fn rusty_goban(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_class::<IGame>()?;
+    Ok(())
+}
+
+#[pyclass]
+pub struct IGame {
+    game: Game,
+}
+
+#[pymethods]
+impl IGame {
+    #[new]
+    ///
+    /// By default the tule are chinnese
+    ///
+    pub fn __new__(obj: &PyRawObject, size: usize) -> PyResult<()> {
+        obj.init(|_| {
+            IGame { game: Game::new(GobanSizes::Custom(size), Rule::Chinese) }
+        })
+    }
+
+    ///
+    /// Get all the plays
+    /// each element represents an vector.
+    ///
+    pub fn plays(&self) -> PyResult<Vec<Vec<u8>>> {
+        Ok(self.game.plays()
+            .into_iter()
+            .map(|goban| goban.tab().clone()).collect())
+    }
+
+    pub fn goban(&self) -> PyResult<Vec<u8>> {
+        Ok(self.game.goban().tab().clone())
+    }
+
+    ///
+    /// Resume the game after to passes
+    ///
+    pub fn resume(&mut self) -> PyResult<()> {
+        Ok(self.game.resume())
+    }
+
+    ///
+    /// Set the komi
+    ///
+    pub fn komi(&mut self, komi: f32) -> PyResult<()> {
+        self.game.set_komi(komi);
+        Ok(())
+    }
+    ///
+    /// Return true if the game is over
+    ///
+    pub fn over(&self) -> PyResult<bool> {
+        Ok(self.game.over())
+    }
+
+    ///
+    /// Returns the score
+    /// (black score, white score)
+    /// returns Big value if resign
+    ///
+    pub fn end_game(&self) -> PyResult<Option<(f32, f32)>> {
+        Ok(match self.game.outcome() {
+            None => None,
+            Some(endgame) => match endgame {
+                EndGame::Score(x, y) => Some((x, y)),
+                EndGame::WinnerByResign(res) => match res {
+
+                    // White win
+                    Player::White => Some((0., 9999.)),
+                    // Black win
+                    Player::Black => Some((9999., 0.)),
+                }
+            }
+        })
+    }
+
+    ///
+    /// Don't check if the play is legal.
+    ///
+    pub fn play(&mut self, play: Coord) -> PyResult<()> {
+        Ok(self.game.play(&Move::Play(play.0, play.1)))
+    }
+
+    pub fn pass(&mut self) -> PyResult<()> {
+        Ok(self.game.play(&Move::Pass))
+    }
+
+    pub fn resign(&mut self) -> PyResult<()> {
+        Ok(self.game.play(&Move::Resign))
+    }
+
+    pub fn legals(&self) -> PyResult<Vec<Coord>> {
+        Ok(self.game.legals().collect())
+    }
+
+    pub fn pop(&mut self) -> PyResult<()> {
+        Ok(self.game.pop())
+    }
+
+    pub fn calculate_territories(&self) -> PyResult<(f32, f32)> {
+        Ok(self.game.calculate_territories())
+    }
+
+    pub fn display(&self) -> PyResult<()> {
+        self.game.display();
+        Ok(())
+    }
+}
