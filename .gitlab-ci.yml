@@ -1,6 +1,5 @@
 image: konstin2/pyo3-pack
 
-
 stages:
   - deploy
 
@@ -9,4 +8,5 @@ publish:
   only:
     - master
   script:
+    - pyo3-pack publish
     - pyo3-pack publish -i python3.5 -u $user -p $password
