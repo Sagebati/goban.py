@@ -1,6 +1,6 @@
 [package]
 name = "libshusaku"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Samuel Batissou <samuelbatissou@gmail.com>"]
 edition = "2018"
 
@@ -9,7 +9,7 @@ name = "libshusaku"
 crate_type = ["cdylib"]
 
 [dependencies]
-goban = {git = "https://gitlab.com/SamBlaise/goban.git", branch = "dev"}
+goban = {git = "https://gitlab.com/Sabati/goban.git", branch = "dev"}
 mcts = "0.2.0"
 
 [dependencies.pyo3]
