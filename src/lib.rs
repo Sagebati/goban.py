@@ -27,7 +27,7 @@ pub struct IGame {
 impl IGame {
     #[new]
     ///
-    /// By default the tule are chinnese
+    /// By default the rule are chinese
     ///
     pub fn __new__(obj: &PyRawObject, size: usize) -> PyResult<()> {
         obj.init(|| {
@@ -82,9 +82,9 @@ impl IGame {
                 EndGame::Score(x, y) => Some((x, y)),
                 EndGame::WinnerByResign(res) => match res {
                     // White win
-                    Player::White => Some((0., 9999.)),
+                    Player::White => Some((-1., 0.)),
                     // Black win
-                    Player::Black => Some((9999., 0.)),
+                    Player::Black => Some((0., -1.)),
                 }
             }
         })
