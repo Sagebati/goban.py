@@ -9,7 +9,7 @@ name = "libshusaku"
 crate_type = ["cdylib"]
 
 [dependencies]
-goban = {git = "https://gitlab.com/SamBlaise/goban.git", branch = "dev"}
+goban = {git = "https://gitlab.com/Sabati/goban.git", branch = "dev"}
 mcts = "0.2.0"
 
 [dependencies.pyo3]
