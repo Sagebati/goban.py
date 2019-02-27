@@ -106,7 +106,7 @@ impl IGame {
     }
 
     /// Pass
-    pub fn pass(&mut self) -> PyResult<()> {
+    pub fn skip(&mut self) -> PyResult<()> {
         Ok(self.game.play(&Move::Pass))
     }
 
