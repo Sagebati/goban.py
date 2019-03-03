@@ -10,4 +10,4 @@ publish:
   script:
     - rustup show
     - pyo3-pack --version
-    - pyo3-pack publish -i python3 -b cffi -u $user -p $password
+    - pyo3-pack publish -b cffi -u $user -p $password
