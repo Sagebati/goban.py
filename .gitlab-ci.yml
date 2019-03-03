@@ -8,5 +8,4 @@ publish:
   only:
     - master
   script:
-    - pip install cffi
     - pyo3-pack publish -i python3 -u $user -p $password
