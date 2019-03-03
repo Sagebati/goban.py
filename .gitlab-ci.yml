@@ -8,4 +8,6 @@ publish:
   only:
     - master
   script:
+    - rustup show
+    - pyo3-pack --version
     - pyo3-pack publish -i python3 -b cffi -u $user -p $password
