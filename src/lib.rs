@@ -29,10 +29,10 @@ impl IGame {
     ///
     /// By default the rule are chinese
     ///
-    pub fn __new__(obj: &PyRawObject, size: usize) -> PyResult<()> {
-        Ok (obj.init({
+    pub fn __new__(obj: &PyRawObject, size: usize) {
+        obj.init({
             IGame { game: Game::new(GobanSizes::Custom(size), Rule::Chinese) }
-        }))
+        });
     }
 
     ///
