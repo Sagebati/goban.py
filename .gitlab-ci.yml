@@ -8,4 +8,4 @@ publish:
   only:
     - master
   script:
-    - pyo3-pack publish -i python3 -u $user -p $password
+    - pyo3-pack -b cffi publish -i python3 -u $user -p $password
