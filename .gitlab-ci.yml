@@ -1,4 +1,4 @@
-image: konstin2/pyo3-pack
+image: samblaise/pyo3-pack
 
 stages:
   - build
