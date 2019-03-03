@@ -1,13 +1,17 @@
-image: samblaise/pyo3-pack
+image: konstin2/pyo3-pack
 
 stages:
+  - build
   - deploy
+
+build:
+  stage: build
+  script:
+    - pyo3-pack build
 
 publish:
   stage: deploy
   only:
     - master
   script:
-    - rustup show
-    - pyo3-pack --version
-    - pyo3-pack publish -b cffi -u $user -p $password
+    - pyo3-pack publish -u $user -p $password
