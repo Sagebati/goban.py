@@ -35,6 +35,10 @@ impl IGame {
         });
     }
 
+    pub fn put_handicap(&mut self, coords: Vec<Coord>) -> PyResult<()> {
+        Ok(self.game.put_handicap(&coords))
+    }
+
     ///
     /// Get all the plays
     /// each element represents an vector.
@@ -45,8 +49,21 @@ impl IGame {
             .map(|goban| goban.tab().clone()).collect())
     }
 
+    ///
+    /// Return an array with the encoded stones
+    ///
     pub fn goban(&self) -> PyResult<Vec<u8>> {
         Ok(self.game.goban().tab().clone())
+    }
+
+    ///
+    /// Return an array with the white stones, and another array with the black atones
+    /// (black array , white array)
+    ///
+    pub fn goban_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
+        Ok(
+            (self.game.goban().b_stones().clone(), self.game.goban().w_stones().clone())
+        )
     }
 
     ///
@@ -121,7 +138,8 @@ impl IGame {
     }
 
     pub fn pop(&mut self) -> PyResult<()> {
-        Ok(self.game.pop())
+        self.game.pop();
+        Ok(())
     }
 
     pub fn calculate_territories(&self) -> PyResult<(f32, f32)> {
