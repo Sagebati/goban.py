@@ -6,12 +6,38 @@ stages:
 
 build:
   stage: build
+  image: samblaise/pyo3-pack
   script:
     - pyo3-pack build
-
-publish:
+    
+publish3.5:
   stage: deploy
+  image: samblaise/pyo3-pack:3.5
   only:
     - master
   script:
     - pyo3-pack publish -u $user -p $password
+
+publish3.6:
+  stage: deploy
+  image: samblaise/pyo3-pack:3.6
+  only:
+    - master
+  script:
+    - pyo3-pack publish -u $user -p $password
+
+publish3.7:
+    stage: deploy
+    image: samblaise/pyo3-pack:3.7
+    only:
+      - master
+    script:
+      - pyo3-pack publish -u $user -p $password
+      
+publish3.8:
+    stage: deploy
+    image: samblaise/pyo3-pack
+    only:
+      - master
+    script:
+      - pyo3-pack publish -u $user -p $password
