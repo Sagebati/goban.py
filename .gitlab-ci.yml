@@ -6,7 +6,7 @@ stages:
 
 build:
   stage: build
-  image: samblaise/pyo3-pack:3.6
+  image: samblaise/pyo3-pack
   script:
     - pyo3-pack build
     
