@@ -16,7 +16,7 @@ publish3.5:
   only:
     - master
   script:
-    - pyo3-pack publish -u $user -p $password
+    - pyo3-pack publish -i python3.5 -u $user -p $password
 
 publish3.6:
   stage: deploy
@@ -24,7 +24,7 @@ publish3.6:
   only:
     - master
   script:
-    - pyo3-pack publish -u $user -p $password
+    - pyo3-pack publish -i python3.6 -u $user -p $password
 
 publish3.7:
     stage: deploy
@@ -32,7 +32,7 @@ publish3.7:
     only:
       - master
     script:
-      - pyo3-pack publish -u $user -p $password
+      - pyo3-pack publish -i python3.7 -u $user -p $password
       
 publish_latest:
     stage: deploy
@@ -40,4 +40,4 @@ publish_latest:
     only:
       - master
     script:
-      - pyo3-pack publish -u $user -p $password
+      - pyo3-pack publish -i python3 -u $user -p $password
