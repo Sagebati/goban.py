@@ -10,12 +10,33 @@ use goban::rules::game::Move;
 use goban::rules::EndGame;
 use goban::rules::Rule;
 use goban::rules::Player;
-use goban::pieces::util::coord::Coord;
+use goban::pieces::util::coord::{Coord, Order};
+use goban::pieces::goban::Goban;
 
 #[pymodule]
 pub fn libshusaku(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<IGame>()?;
+    m.add_class::<IGame>()?;
     Ok(())
+}
+
+#[pyclass(name = Goban)]
+pub struct IGoban {
+    goban: Goban
+}
+
+#[pymethods]
+impl IGoban {
+    #[new]
+    pub fn __new__(obj: &PyRawObject, arr: Vec<u8>) {
+        obj.init({
+            IGoban { goban: Goban::from_array(&arr, Order::RowMajor) }
+        });
+    }
+
+    pub fn pretty_string(&self) -> PyResult<String> {
+        Ok(self.goban.pretty_string())
+    }
 }
 
 #[pyclass]
