@@ -7,10 +7,10 @@ use pyo3::prelude::*;
 use goban::rules::game::Game;
 use goban::rules::game::GobanSizes;
 use goban::rules::game::Move;
-use goban::pieces::util::Coord;
 use goban::rules::EndGame;
 use goban::rules::Rule;
 use goban::rules::Player;
+use goban::pieces::util::coord::Coord;
 
 #[pymodule]
 pub fn libshusaku(_py: Python, m: &PyModule) -> PyResult<()> {
