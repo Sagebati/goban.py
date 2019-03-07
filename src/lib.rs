@@ -15,7 +15,7 @@ use goban::pieces::goban::Goban;
 
 #[pymodule]
 pub fn libshusaku(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_class::<IGame>()?;
+    m.add_class::<IGoban>()?;
     m.add_class::<IGame>()?;
     Ok(())
 }
@@ -32,6 +32,13 @@ impl IGoban {
         obj.init({
             IGoban { goban: Goban::from_array(&arr, Order::RowMajor) }
         });
+    }
+
+    pub fn raw(&self) -> PyResult<Vec<u8>> { Ok(self.goban.tab().clone()) }
+
+    pub fn raw_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)>
+    {
+        Ok((self.goban.b_stones().clone(), self.goban.w_stones().clone()))
     }
 
     pub fn pretty_string(&self) -> PyResult<String> {
@@ -71,17 +78,21 @@ impl IGame {
     }
 
     ///
-    /// Return an array with the encoded stones
+    /// Return the goban
     ///
-    pub fn goban(&self) -> PyResult<Vec<u8>> {
-        Ok(self.game.goban().tab().clone())
+    pub fn goban(&self) -> PyResult<IGoban> {
+        Ok(IGoban { goban: self.game.goban().clone() })
     }
 
     ///
-    /// Return an array with the white stones, and another array with the black atones
-    /// (black array , white array)
+    /// Get the goban in a Vec<u8>
     ///
-    pub fn goban_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
+    pub fn raw_goban(&self) -> PyResult<Vec<u8>>
+    {
+        Ok(self.game.goban().tab().clone())
+    }
+
+    pub fn raw_goban_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
         Ok(
             (self.game.goban().b_stones().clone(), self.game.goban().w_stones().clone())
         )
