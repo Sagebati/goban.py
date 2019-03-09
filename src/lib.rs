@@ -106,9 +106,25 @@ impl IGame {
     }
 
     ///
+    /// Get prisoners of the game.
+    /// (black prisoners, white prisoners)
+    ///
+    pub fn prisoners(&self) -> PyResult<(u32, u32)> {
+        Ok(self.game.prisoners())
+    }
+
+    ///
+    /// Return the komi of the game
+    ///
+    pub fn komi(&self) -> PyResult<f32> {
+        Ok
+            (self.game.komi())
+    }
+
+    ///
     /// Set the komi
     ///
-    pub fn komi(&mut self, komi: f32) -> PyResult<()> {
+    pub fn set_komi(&mut self, komi: f32) -> PyResult<()> {
         self.game.set_komi(komi);
         Ok(())
     }
@@ -122,7 +138,10 @@ impl IGame {
     ///
     /// Returns the score
     /// (black score, white score)
-    /// returns Big value if resign
+    /// returns -1 if resign
+    /// ex:
+    /// (-1,0) Black resigned so white won
+    /// (0,-1) White resigned so black won
     ///
     pub fn outcome(&self) -> PyResult<Option<(f32, f32)>> {
         Ok(match self.game.outcome() {
