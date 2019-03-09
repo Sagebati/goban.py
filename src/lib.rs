@@ -110,7 +110,7 @@ impl IGame {
     /// (black prisoners, white prisoners)
     ///
     pub fn prisoners(&self) -> PyResult<(u32, u32)> {
-        Ok(self.game.prisoners())
+        Ok(*self.game.prisoners())
     }
 
     ///
@@ -118,7 +118,7 @@ impl IGame {
     ///
     pub fn komi(&self) -> PyResult<f32> {
         Ok
-            (self.game.komi())
+            (*self.game.komi())
     }
 
     ///
