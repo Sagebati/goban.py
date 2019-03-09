@@ -150,13 +150,11 @@ impl IGame {
     ///
     /// Don't check if the play is legal.
     ///
-    pub fn play(&mut self, play: Coord) -> PyResult<()> {
-        Ok(self.game.play(&Move::Play(play.0, play.1)))
-    }
-
-    /// Pass
-    pub fn skip(&mut self) -> PyResult<()> {
-        Ok(self.game.play(&Move::Pass))
+    pub fn play(&mut self, play: Option<Coord>) -> PyResult<()> {
+        Ok(match play {
+            Some(mov) => self.game.play(&Move::Play(mov.0, mov.1)),
+            None => self.game.play(&Move::Pass),
+        })
     }
 
     /// Resign
