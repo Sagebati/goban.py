@@ -71,10 +71,16 @@ impl IGame {
     /// Get all the plays
     /// each element represents an vector.
     ///
-    pub fn plays(&self) -> PyResult<Vec<Vec<u8>>> {
+    pub fn raw_plays(&self) -> PyResult<Vec<Vec<u8>>> {
         Ok(self.game.plays()
             .into_iter()
             .map(|goban| goban.tab().clone()).collect())
+    }
+
+    pub fn raw_plays_split(&self) -> PyResult<Vec<(Vec<bool>, Vec<bool>)>> {
+        Ok(self.game.plays()
+            .into_iter()
+            .map(|goban| (goban.b_stones().clone(), goban.w_stones().clone())).collect())
     }
 
     ///
