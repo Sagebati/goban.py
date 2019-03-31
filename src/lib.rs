@@ -110,7 +110,7 @@ impl IGame {
     }
 
     ///
-    /// Return the goban
+    /// Return the underlying goban
     ///
     pub fn goban(&self) -> PyResult<IGoban> {
         Ok(IGoban { goban: self.game.goban().clone() })
@@ -126,6 +126,9 @@ impl IGame {
         )
     }
 
+    ///
+    /// Get the goban in a split.
+    ///
     pub fn raw_goban_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
         Ok(
             (self.game.goban().b_stones().clone(), self.game.goban().w_stones().clone())
