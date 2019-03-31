@@ -1,6 +1,6 @@
 [package]
 name = "libshusaku"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Samuel Batissou <samuelbatissou@gmail.com>"]
 edition = "2018"
 
@@ -12,5 +12,12 @@ crate_type = ["cdylib"]
 goban = {git = "https://gitlab.com/Sabati/goban.git", branch = "dev"}
 
 [dependencies.pyo3]
-version = "0.6.0-alpha.4"
+version = "0.6.0"
 features = ["extension-module"]
+
+[target.x86_64-apple-darwin]
+rustflags = [
+  "-C", "link-arg=-undefined",
+  "-C", "link-arg=dynamic_lookup",
+]
+

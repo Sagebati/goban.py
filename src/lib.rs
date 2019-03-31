@@ -12,6 +12,13 @@ use goban::rules::Rule;
 use goban::rules::Player;
 use goban::pieces::util::coord::{Coord, Order};
 use goban::pieces::goban::Goban;
+use goban::pieces::stones::Color;
+
+fn vec_color_to_u8(vec: &Vec<Color>) -> Vec<u8> {
+    vec.iter()
+        .map(|color| *color as u8)
+        .collect()
+}
 
 #[pymodule]
 pub fn libshusaku(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -29,12 +36,18 @@ pub struct IGoban {
 impl IGoban {
     #[new]
     pub fn __new__(obj: &PyRawObject, arr: Vec<u8>) {
+        let stones: Vec<Color> = arr.into_iter()
+            .map(|v| v.into())
+            .collect();
         obj.init({
-            IGoban { goban: Goban::from_array(&arr, Order::RowMajor) }
+            IGoban { goban: Goban::from_array(&stones, Order::RowMajor) }
         });
     }
 
-    pub fn raw(&self) -> PyResult<Vec<u8>> { Ok(self.goban.tab().clone()) }
+    pub fn raw(&self) -> PyResult<Vec<u8>> {
+        Ok(self.goban.tab().iter().map(|color| *color as
+            u8).collect())
+    }
 
     pub fn raw_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)>
     {
@@ -67,20 +80,33 @@ impl IGame {
         Ok(self.game.put_handicap(&coords))
     }
 
+    pub fn size(&self) -> usize {
+        *self.game.goban().size()
+    }
+
     ///
     /// Get all the plays
     /// each element represents an vector.
     ///
-    pub fn raw_plays(&self) -> PyResult<Vec<Vec<u8>>> {
+    pub fn plays(&self) -> PyResult<Vec<IGoban>> {
         Ok(self.game.plays()
             .into_iter()
-            .map(|goban| goban.tab().clone()).collect())
+            .map(|goban| IGoban { goban: goban.clone() }).collect())
+    }
+
+    pub fn raw_plays(&self) -> PyResult<Vec<Vec<u8>>> {
+        Ok(
+            self.game.plays().into_iter()
+                .map(|goban| vec_color_to_u8(&goban.tab()))
+                .collect()
+        )
     }
 
     pub fn raw_plays_split(&self) -> PyResult<Vec<(Vec<bool>, Vec<bool>)>> {
         Ok(self.game.plays()
             .into_iter()
-            .map(|goban| (goban.b_stones().clone(), goban.w_stones().clone())).collect())
+            .map(|goban| (goban.b_stones().clone(), goban.w_stones().clone()))
+            .collect())
     }
 
     ///
@@ -95,7 +121,9 @@ impl IGame {
     ///
     pub fn raw_goban(&self) -> PyResult<Vec<u8>>
     {
-        Ok(self.game.goban().tab().clone())
+        Ok(
+            vec_color_to_u8(self.game.goban().tab())
+        )
     }
 
     pub fn raw_goban_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
