@@ -71,9 +71,8 @@ impl IGame {
             9 => GobanSizes::Nine,
             13 => GobanSizes::Thirteen,
             19 => GobanSizes::Nineteen,
-            _ => panic!("You must choose 9, 13, 19")
+            _ => panic!("You must choose 9, 13, 19"),
         };
-
 
         obj.init({
             IGame {
@@ -83,7 +82,8 @@ impl IGame {
     }
 
     pub fn put_handicap(&mut self, coords: Vec<Coord>) -> PyResult<()> {
-        Ok(self.game.put_handicap(&coords))
+        self.game.put_handicap(&coords);
+        Ok(())
     }
 
     pub fn size(&self) -> usize {
@@ -98,7 +98,7 @@ impl IGame {
         Ok(self
             .game
             .plays()
-            .into_iter()
+            .iter()
             .map(|goban| IGoban {
                 goban: goban.clone(),
             })
@@ -109,7 +109,7 @@ impl IGame {
         Ok(self
             .game
             .plays()
-            .into_iter()
+            .iter()
             .map(|goban| vec_color_to_u8(&goban.tab()))
             .collect())
     }
@@ -118,7 +118,7 @@ impl IGame {
         Ok(self
             .game
             .plays()
-            .into_iter()
+            .iter()
             .map(|goban| (goban.b_stones().clone(), goban.w_stones().clone()))
             .collect())
     }
@@ -153,7 +153,8 @@ impl IGame {
     /// Resume the game after to passes
     ///
     pub fn resume(&mut self) -> PyResult<()> {
-        Ok(self.game.resume())
+        self.game.resume();
+        Ok(())
     }
 
     ///
@@ -222,15 +223,17 @@ impl IGame {
     /// Don't check if the play is legal.
     ///
     pub fn play(&mut self, play: Option<Coord>) -> PyResult<()> {
-        Ok(match play {
-            Some(mov) => self.game.play(&Move::Play(mov.0, mov.1)),
-            None => self.game.play(&Move::Pass),
-        })
+        match play {
+            Some(mov) => self.game.play(Move::Play(mov.0, mov.1)),
+            None => self.game.play(Move::Pass),
+        };
+        Ok(())
     }
 
     /// Resign
     pub fn resign(&mut self) -> PyResult<()> {
-        Ok(self.game.play(&Move::Resign))
+        self.game.play(Move::Resign);
+        Ok(())
     }
 
     /// All the legals
