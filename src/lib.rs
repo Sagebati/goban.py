@@ -232,8 +232,8 @@ impl IGame {
         Ok(self.game.calculate_territories())
     }
 
-    pub fn display(&self) -> PyResult<()> {
-        self.game.display();
+    pub fn display_goban(&self) -> PyResult<()> {
+        self.game.display_goban();
         Ok(())
     }
 }

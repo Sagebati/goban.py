@@ -1,11 +1,11 @@
 [package]
-name = "libshusaku"
+name = "libgoban"
 version = "0.3.5"
 authors = ["Samuel Batissou <samuelbatissou@gmail.com>"]
 edition = "2018"
 
 [lib]
-name = "libshusaku"
+name = "libgoban"
 crate_type = ["cdylib"]
 
 [dependencies]
