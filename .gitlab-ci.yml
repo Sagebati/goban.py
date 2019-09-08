@@ -8,7 +8,7 @@ build:
   stage: build
   image: samblaise/pyo3-pack
   script:
-    - pyo3-pack build
+    - pyo3-pack build -i python3
 
 publish_latest:
   stage: deploy
