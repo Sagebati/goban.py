@@ -19,7 +19,7 @@ fn vec_color_to_u8(vec: &Vec<Color>) -> Vec<u8> {
 }
 
 #[pymodule]
-pub fn libshusaku(_py: Python, m: &PyModule) -> PyResult<()> {
+pub fn libgoban(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<IGoban>()?;
     m.add_class::<IGame>()?;
     Ok(())
