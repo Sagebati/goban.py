@@ -1,4 +1,4 @@
-image: samblaise/pyo3-pack
+image: samblaise/maturin
 
 stages:
   - build
@@ -6,41 +6,41 @@ stages:
 
 build:
   stage: build
-  image: samblaise/pyo3-pack
+  image: samblaise/maturin
   script:
-    - pyo3-pack build -i python3
+    - maturin build -i python3
 
 publish_latest:
   stage: deploy
-  image: samblaise/pyo3-pack
+  image: samblaise/maturin
   only:
     - master
   script:
-    - pyo3-pack publish -i python3 -u $user -p $password
+    - maturin publish -i python3 -u $user -p $password
 
 publish3.5:
   stage: deploy
-  image: samblaise/pyo3-pack:3.5
+  image: samblaise/maturin:3.5
   only:
     - master
   script:
-    - pyo3-pack publish -i python3.5 -u $user -p $password
+    - maturin publish -i python3.5 -u $user -p $password
 
 publish3.6:
   stage: deploy
-  image: samblaise/pyo3-pack:3.6
+  image: samblaise/maturin:3.6
   only:
     - master
   script:
-    - pyo3-pack publish -i python3.6 -u $user -p $password
+    - maturin publish -i python3.6 -u $user -p $password
 
 publish3.7:
   stage: deploy
-  image: samblaise/pyo3-pack:3.7
+  image: samblaise/maturin:3.7
   allow_failure: true
   only:
     - master
   script:
-    - pyo3-pack publish -i python3.7 -u $user -p $password
+    - maturin publish -i python3.7 -u $user -p $password
       
 
