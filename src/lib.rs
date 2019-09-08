@@ -13,6 +13,7 @@ use goban::rules::EndGame;
 use goban::rules::Player;
 use goban::rules::Rule;
 use pyo3::prelude::*;
+use goban::rules::Player::{White, Black};
 
 fn vec_color_to_u8(vec: &Vec<Color>) -> Vec<u8> {
     vec.iter().map(|color| *color as u8).collect()
@@ -231,8 +232,13 @@ impl IGame {
     }
 
     /// Resign
-    pub fn resign(&mut self) -> PyResult<()> {
-        self.game.play(Move::Resign);
+    /// player
+    /// true White
+    /// false Black
+    pub fn resign(&mut self, player: bool) -> PyResult<()> {
+        self.game.play(Move::Resign(
+            if player { White } else { Black }
+        ));
         Ok(())
     }
 
