@@ -183,7 +183,7 @@ impl IGame {
     /// Return true if the game is over
     ///
     pub fn over(&self) -> PyResult<bool> {
-        Ok(self.game.over())
+        Ok(self.game.is_over())
     }
 
     ///
@@ -247,7 +247,7 @@ impl IGame {
     }
 
     pub fn calculate_territories(&self) -> PyResult<(f32, f32)> {
-        Ok(self.game.calculate_territories())
+        Ok(self.game.goban().calculate_territories())
     }
 
     pub fn display_goban(&self) -> PyResult<()> {
