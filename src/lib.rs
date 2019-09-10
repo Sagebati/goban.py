@@ -14,9 +14,32 @@ use goban::rules::Player;
 use goban::rules::Rule;
 use pyo3::prelude::*;
 use goban::rules::Player::{White, Black};
+use std::ops::Deref;
+
+
+fn to_color(b: bool) -> Color {
+    match b {
+        true => Color::White,
+        false => Color::Black
+    }
+}
 
 fn vec_color_to_u8(vec: &Vec<Color>) -> Vec<u8> {
     vec.iter().map(|color| *color as u8).collect()
+}
+
+fn vec_color_to_raw_split(vec: &Vec<Color>) -> (Vec<bool>, Vec<bool>) {
+    let mut black_stones = vec![false; vec.len()];
+    let mut white_stones = vec![false; vec.len()];
+
+    for i in 0..vec.len() {
+        match vec[i] {
+            Color::Black => black_stones[i] = true,
+            Color::White => white_stones[i] = true,
+            _ => ()
+        }
+    }
+    (black_stones, white_stones)
 }
 
 #[pymodule]
@@ -29,6 +52,30 @@ pub fn libgoban(_py: Python, m: &PyModule) -> PyResult<()> {
 #[pyclass(name = Goban)]
 pub struct IGoban {
     goban: Goban,
+}
+
+impl Deref for IGoban {
+    type Target = Goban;
+
+    fn deref(&self) -> &Self::Target {
+        &self.goban
+    }
+}
+
+impl From<Goban> for IGoban {
+    fn from(goban: Goban) -> Self {
+        IGoban {
+            goban
+        }
+    }
+}
+
+impl From<&Goban> for IGoban {
+    fn from(goban: &Goban) -> Self {
+        IGoban {
+            goban: goban.clone()
+        }
+    }
 }
 
 #[pymethods]
@@ -44,11 +91,11 @@ impl IGoban {
     }
 
     pub fn raw(&self) -> PyResult<Vec<u8>> {
-        Ok(self.goban.tab().iter().map(|color| *color as u8).collect())
+        Ok(vec_color_to_u8(self.tab()))
     }
 
     pub fn raw_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
-        Ok((self.goban.b_stones().clone(), self.goban.w_stones().clone()))
+        Ok(vec_color_to_raw_split(self.tab()))
     }
 
     pub fn pretty_string(&self) -> PyResult<String> {
@@ -87,8 +134,8 @@ impl IGame {
         Ok(())
     }
 
-    pub fn size(&self) -> usize {
-        *self.game.goban().size()
+    pub fn size(&self) -> PyResult<usize> {
+        Ok(*self.game.goban().size())
     }
 
     ///
@@ -96,13 +143,10 @@ impl IGame {
     /// each element represents an vector.
     ///
     pub fn plays(&self) -> PyResult<Vec<IGoban>> {
-        Ok(self
-            .game
+        Ok(self.game
             .plays()
             .iter()
-            .map(|goban| IGoban {
-                goban: goban.clone(),
-            })
+            .map(|goban| goban.into())
             .collect())
     }
 
@@ -120,7 +164,7 @@ impl IGame {
             .game
             .plays()
             .iter()
-            .map(|goban| (goban.b_stones().clone(), goban.w_stones().clone()))
+            .map(|goban| vec_color_to_raw_split(&goban.tab()))
             .collect())
     }
 
@@ -144,10 +188,9 @@ impl IGame {
     /// Get the goban in a split.
     ///
     pub fn raw_goban_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
-        Ok((
-            self.game.goban().b_stones().clone(),
-            self.game.goban().w_stones().clone(),
-        ))
+        Ok(
+            vec_color_to_raw_split(&self.game.goban().tab())
+        )
     }
 
     ///
@@ -254,6 +297,10 @@ impl IGame {
 
     pub fn calculate_territories(&self) -> PyResult<(f32, f32)> {
         Ok(self.game.goban().calculate_territories())
+    }
+
+    pub fn is_point_an_eye(&self, point: Coord, color: bool) -> bool {
+        self.game.goban().is_point_an_eye(point, to_color(color))
     }
 
     pub fn display_goban(&self) -> PyResult<()> {
