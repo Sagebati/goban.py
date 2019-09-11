@@ -50,6 +50,7 @@ pub fn libgoban(_py: Python, m: &PyModule) -> PyResult<()> {
 }
 
 #[pyclass(name = Goban)]
+#[derive(Clone)]
 pub struct IGoban {
     goban: Goban,
 }
@@ -104,6 +105,7 @@ impl IGoban {
 }
 
 #[pyclass]
+#[derive(Clone)]
 pub struct IGame {
     game: Game,
 }
@@ -272,6 +274,11 @@ impl IGame {
             None => self.game.play(Move::Pass),
         };
         Ok(())
+    }
+
+    pub fn play_and_clone(&mut self, play: Option<Coord>) -> PyResult<(Self)> {
+        self.play(play);
+        Ok(self.clone())
     }
 
     /// Resign
