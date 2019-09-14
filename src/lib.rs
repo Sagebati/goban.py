@@ -6,15 +6,13 @@ extern crate pyo3;
 use goban::pieces::goban::Goban;
 use goban::pieces::stones::Color;
 use goban::pieces::util::coord::{Coord, Order};
-use goban::rules::game::Game;
-use goban::rules::game::GobanSizes;
-use goban::rules::game::Move;
-use goban::rules::EndGame;
+use goban::rules::{GobanSizes, Move};
 use goban::rules::Player;
 use goban::rules::Rule;
 use pyo3::prelude::*;
 use goban::rules::Player::{White, Black};
 use std::ops::Deref;
+use goban::rules::game::Game;
 
 
 fn to_color(b: bool) -> Color {
@@ -233,25 +231,27 @@ impl IGame {
     }
 
     ///
-    /// Returns the score
-    /// (black score, white score)
-    /// returns -1 if resign
-    /// ex:
-    /// (-1,0) Black resigned so white won
-    /// (0,-1) White resigned so black won
+    /// Returns the calculated score.
     ///
-    pub fn outcome(&self) -> PyResult<Option<(f32, f32)>> {
+    pub fn calculate_score(&self) -> PyResult<(f32, f32)> {
+        Ok(self.game.calculate_score())
+    }
+
+    ///
+    /// Return the winner true for white
+    /// false for black
+    /// panics if the game is not finished
+    ///
+    pub fn get_winner(&self) -> PyResult<Option<bool>> {
         Ok(match self.game.outcome() {
-            None => None,
-            Some(endgame) => match endgame {
-                EndGame::Score(x, y) => Some((x, y)),
-                EndGame::WinnerByResign(res) => match res {
-                    // White win
-                    Player::White => Some((-1., 0.)),
-                    // Black win
-                    Player::Black => Some((0., -1.)),
-                },
-            },
+            None => panic!("Game not finished"),
+            Some(o) => match o.get_winner() {
+                None => None,
+                Some(o) => match o {
+                    Black => Some(false),
+                    White => Some(true)
+                }
+            }
         })
     }
 
