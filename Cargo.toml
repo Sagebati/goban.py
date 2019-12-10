@@ -12,7 +12,7 @@ crate_type = ["cdylib"]
 goban = {git = "https://gitlab.com/Sabati/goban.git", branch = "dev"}
 
 [dependencies.pyo3]
-version = "0.8.0"
+version = "0.8.3"
 features = ["extension-module"]
 
 [target.x86_64-apple-darwin]

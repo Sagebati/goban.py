@@ -1,11 +1,10 @@
-#![feature(custom_attribute)]
 #![feature(specialization)]
 
 extern crate pyo3;
 
 use goban::pieces::goban::Goban;
 use goban::pieces::stones::Color;
-use goban::pieces::util::coord::{Coord, Order};
+use goban::pieces::util::coord::{Point, Order};
 use goban::rules::{GobanSizes, Move};
 use goban::rules::Player;
 use goban::rules::Rule;
@@ -129,13 +128,13 @@ impl IGame {
         });
     }
 
-    pub fn put_handicap(&mut self, coords: Vec<Coord>) -> PyResult<()> {
+    pub fn put_handicap(&mut self, coords: Vec<Point>) -> PyResult<()> {
         self.game.put_handicap(&coords);
         Ok(())
     }
 
     pub fn size(&self) -> PyResult<usize> {
-        Ok(*self.game.goban().size())
+        Ok(self.game.goban().size())
     }
 
     ///
@@ -206,14 +205,14 @@ impl IGame {
     /// (black prisoners, white prisoners)
     ///
     pub fn prisoners(&self) -> PyResult<(u32, u32)> {
-        Ok(*self.game.prisoners())
+        Ok(self.game.prisoners())
     }
 
     ///
     /// Return the komi of the game
     ///
     pub fn komi(&self) -> PyResult<f32> {
-        Ok(*self.game.komi())
+        Ok(self.game.komi())
     }
 
     ///
@@ -268,7 +267,7 @@ impl IGame {
     ///
     /// Don't check if the play is legal.
     ///
-    pub fn play(&mut self, play: Option<Coord>) -> PyResult<()> {
+    pub fn play(&mut self, play: Option<Point>) -> PyResult<()> {
         match play {
             Some(mov) => self.game.play(Move::Play(mov.0, mov.1)),
             None => self.game.play(Move::Pass),
@@ -276,7 +275,7 @@ impl IGame {
         Ok(())
     }
 
-    pub fn play_and_clone(&mut self, play: Option<Coord>) -> PyResult<(Self)> {
+    pub fn play_and_clone(&mut self, play: Option<Point>) -> PyResult<(Self)> {
         self.play(play);
         Ok(self.clone())
     }
@@ -293,20 +292,15 @@ impl IGame {
     }
 
     /// All the legals
-    pub fn legals(&self) -> PyResult<Vec<Coord>> {
+    pub fn legals(&self) -> PyResult<Vec<Point>> {
         Ok(self.game.legals().collect())
-    }
-
-    pub fn pop(&mut self) -> PyResult<()> {
-        self.game.pop();
-        Ok(())
     }
 
     pub fn calculate_territories(&self) -> PyResult<(f32, f32)> {
         Ok(self.game.goban().calculate_territories())
     }
 
-    pub fn is_point_an_eye(&self, point: Coord, color: bool) -> bool {
+    pub fn is_point_an_eye(&self, point: Point, color: bool) -> bool {
         self.game.goban().is_point_an_eye(point, to_color(color))
     }
 
