@@ -21,11 +21,11 @@ fn to_color(b: bool) -> Color {
     }
 }
 
-fn vec_color_to_u8(vec: &Vec<Color>) -> Vec<u8> {
+fn vec_color_to_u8(vec: Vec<Color>) -> Vec<u8> {
     vec.iter().map(|color| *color as u8).collect()
 }
 
-fn vec_color_to_raw_split(vec: &Vec<Color>) -> (Vec<bool>, Vec<bool>) {
+fn vec_color_to_raw_split(vec: Vec<Color>) -> (Vec<bool>, Vec<bool>) {
     let mut black_stones = vec![false; vec.len()];
     let mut white_stones = vec![false; vec.len()];
 
@@ -138,36 +138,6 @@ impl IGame {
     }
 
     ///
-    /// Get all the plays
-    /// each element represents an vector.
-    ///
-    pub fn plays(&self) -> PyResult<Vec<IGoban>> {
-        Ok(self.game
-            .plays()
-            .iter()
-            .map(|goban| goban.into())
-            .collect())
-    }
-
-    pub fn raw_plays(&self) -> PyResult<Vec<Vec<u8>>> {
-        Ok(self
-            .game
-            .plays()
-            .iter()
-            .map(|goban| vec_color_to_u8(&goban.tab()))
-            .collect())
-    }
-
-    pub fn raw_plays_split(&self) -> PyResult<Vec<(Vec<bool>, Vec<bool>)>> {
-        Ok(self
-            .game
-            .plays()
-            .iter()
-            .map(|goban| vec_color_to_raw_split(&goban.tab()))
-            .collect())
-    }
-
-    ///
     /// Return the underlying goban
     ///
     pub fn goban(&self) -> PyResult<IGoban> {
@@ -188,7 +158,7 @@ impl IGame {
     ///
     pub fn raw_goban_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
         Ok(
-            vec_color_to_raw_split(&self.game.goban().tab())
+            vec_color_to_raw_split(self.game.goban().tab())
         )
     }
 
@@ -275,7 +245,7 @@ impl IGame {
         Ok(())
     }
 
-    pub fn play_and_clone(&mut self, play: Option<Point>) -> PyResult<(Self)> {
+    pub fn play_and_clone(&mut self, play: Option<Point>) -> PyResult<Self> {
         self.play(play);
         Ok(self.clone())
     }

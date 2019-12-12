@@ -42,5 +42,15 @@ publish3.7:
     - master
   script:
     - maturin publish -i python3.7 -u $user -p $password
+
+publish-latest:
+  stage: deploy
+  image: samblaise/maturin
+  allow_failure: true
+  only:
+    - master
+  script:
+    - maturin publish -i python3.8 -u $user -p $password
+
       
 
