@@ -1,23 +1,20 @@
 #![feature(specialization)]
 
-extern crate pyo3;
-
 use goban::pieces::goban::Goban;
 use goban::pieces::stones::Color;
-use goban::pieces::util::coord::{Point, Order};
-use goban::rules::{GobanSizes, Move};
-use goban::rules::Player;
-use goban::rules::Rule;
-use pyo3::prelude::*;
-use goban::rules::Player::{White, Black};
-use std::ops::Deref;
+use goban::pieces::util::coord::{Order, Point};
 use goban::rules::game::Game;
-
+use goban::rules::Player;
+use goban::rules::Player::{Black, White};
+use goban::rules::Rule;
+use goban::rules::{GobanSizes, Move};
+use pyo3::prelude::*;
+use std::ops::Deref;
 
 fn to_color(b: bool) -> Color {
     match b {
         true => Color::White,
-        false => Color::Black
+        false => Color::Black,
     }
 }
 
@@ -33,7 +30,7 @@ fn vec_color_to_raw_split(vec: Vec<Color>) -> (Vec<bool>, Vec<bool>) {
         match vec[i] {
             Color::Black => black_stones[i] = true,
             Color::White => white_stones[i] = true,
-            _ => ()
+            _ => (),
         }
     }
     (black_stones, white_stones)
@@ -47,7 +44,7 @@ pub fn libgoban(_py: Python, m: &PyModule) -> PyResult<()> {
 }
 
 #[pyclass(name = Goban)]
-#[derive(Clone)]
+#[derive(Clone, Hash, Debug)]
 pub struct IGoban {
     goban: Goban,
 }
@@ -62,16 +59,14 @@ impl Deref for IGoban {
 
 impl From<Goban> for IGoban {
     fn from(goban: Goban) -> Self {
-        IGoban {
-            goban
-        }
+        IGoban { goban }
     }
 }
 
 impl From<&Goban> for IGoban {
     fn from(goban: &Goban) -> Self {
         IGoban {
-            goban: goban.clone()
+            goban: goban.clone(),
         }
     }
 }
@@ -89,11 +84,11 @@ impl IGoban {
     }
 
     pub fn raw(&self) -> PyResult<Vec<u8>> {
-        Ok(vec_color_to_u8(self.tab()))
+        Ok(vec_color_to_u8(self.goban.raw()))
     }
 
     pub fn raw_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
-        Ok(vec_color_to_raw_split(self.tab()))
+        Ok(vec_color_to_raw_split(self.goban.raw()))
     }
 
     pub fn pretty_string(&self) -> PyResult<String> {
@@ -133,7 +128,7 @@ impl IGame {
         Ok(())
     }
 
-    pub fn size(&self) -> PyResult<usize> {
+    pub fn size(&self) -> PyResult<(usize, usize)> {
         Ok(self.game.goban().size())
     }
 
@@ -150,16 +145,14 @@ impl IGame {
     /// Get the goban in a Vec<u8>
     ///
     pub fn raw_goban(&self) -> PyResult<Vec<u8>> {
-        Ok(vec_color_to_u8(self.game.goban().tab()))
+        Ok(vec_color_to_u8(self.game.goban().raw()))
     }
 
     ///
     /// Get the goban in a split.
     ///
     pub fn raw_goban_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
-        Ok(
-            vec_color_to_raw_split(self.game.goban().tab())
-        )
+        Ok(vec_color_to_raw_split(self.game.goban().raw()))
     }
 
     ///
@@ -218,9 +211,9 @@ impl IGame {
                 None => None,
                 Some(o) => match o {
                     Black => Some(false),
-                    White => Some(true)
-                }
-            }
+                    White => Some(true),
+                },
+            },
         })
     }
 
@@ -255,9 +248,8 @@ impl IGame {
     /// true White
     /// false Black
     pub fn resign(&mut self, player: bool) -> PyResult<()> {
-        self.game.play(Move::Resign(
-            if player { White } else { Black }
-        ));
+        self.game
+            .play(Move::Resign(if player { White } else { Black }));
         Ok(())
     }
 
