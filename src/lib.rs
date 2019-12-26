@@ -10,6 +10,7 @@ use goban::rules::Rule;
 use goban::rules::{GobanSizes, Move};
 use pyo3::prelude::*;
 use std::ops::Deref;
+use rand::thread_rng;
 
 fn to_color(b: bool) -> Color {
     match b {
@@ -258,6 +259,12 @@ impl IGame {
         Ok(self.game.legals().collect())
     }
 
+    /// All the legals shuffled
+    pub fn legals_shuffle(&self) -> PyResult<Vec<Point>> {
+        Ok(self.game.legals_shuffle(&mut thread_rng()).collect())
+    }
+
+    ///
     pub fn calculate_territories(&self) -> PyResult<(f32, f32)> {
         Ok(self.game.goban().calculate_territories())
     }

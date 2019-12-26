@@ -1,6 +1,6 @@
 [package]
 name = "libgoban"
-version = "0.6.1"
+version = "0.6.2"
 authors = ["Samuel Batissou <samuelbatissou@gmail.com>"]
 edition = "2018"
 
@@ -10,6 +10,7 @@ crate_type = ["cdylib"]
 
 [dependencies]
 goban = {git = "https://gitlab.com/Sabati/goban.git", branch = "dev"}
+rand = "0.7.2"
 
 [dependencies.pyo3]
 version = "0.8.4"
