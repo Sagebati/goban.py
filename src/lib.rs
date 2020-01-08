@@ -10,7 +10,6 @@ use goban::rules::Rule;
 use goban::rules::{GobanSizes, Move};
 use pyo3::prelude::*;
 use std::ops::Deref;
-use rand::thread_rng;
 
 fn to_color(b: bool) -> Color {
     match b {
@@ -239,36 +238,45 @@ impl IGame {
         Ok(())
     }
 
-    pub fn play_and_clone(&mut self, play: Option<Point>) -> PyResult<Self> {
-        self.play(play);
-        Ok(self.clone())
+    ///
+    /// Play a move then return a clone
+    ///
+    pub fn play_and_clone(&self, play: Option<Point>) -> PyResult<Self> {
+        let mut x = self.clone();
+        x.play(play);
+        Ok(x)
     }
 
-    /// Resign
-    /// player
-    /// true White
-    /// false Black
+    /// Resign player
+    /// if true White resign
+    /// if false Black resigns
     pub fn resign(&mut self, player: bool) -> PyResult<()> {
         self.game
             .play(Move::Resign(if player { White } else { Black }));
         Ok(())
     }
 
-    /// All the legals
+    /// All the legals moves of the baord.
     pub fn legals(&self) -> PyResult<Vec<Point>> {
         Ok(self.game.legals().collect())
     }
 
-    /// All the legals shuffled
-    pub fn legals_shuffle(&self) -> PyResult<Vec<Point>> {
-        Ok(self.game.legals_shuffle(&mut thread_rng()).collect())
+    /// return true if the point is legal
+    pub fn is_legal(&self, point: Point) -> PyResult<bool> {
+        Ok(self.game.check_move(point).is_none())
     }
 
-    ///
-    pub fn calculate_territories(&self) -> PyResult<(f32, f32)> {
+    /// return all the empty intersection of the board,
+    pub fn pseudo_legals(&self) -> PyResult<Vec<Point>> {
+        Ok(self.game.pseudo_legals().collect())
+    }
+
+    /// Count the territory points for each player.
+    pub fn calculate_territories(&self) -> PyResult<(usize, usize)> {
         Ok(self.game.goban().calculate_territories())
     }
 
+    /// Test is a point is an eye.
     pub fn is_point_an_eye(&self, point: Point, color: bool) -> bool {
         self.game.goban().is_point_an_eye(point, to_color(color))
     }
