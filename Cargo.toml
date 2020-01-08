@@ -10,7 +10,6 @@ crate_type = ["cdylib"]
 
 [dependencies]
 goban = {git = "https://gitlab.com/Sabati/goban.git", branch = "dev"}
-rand = "0.7.2"
 
 [dependencies.pyo3]
 version = "0.8.5"
