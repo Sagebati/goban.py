@@ -1,6 +1,6 @@
 [package]
 name = "libgoban"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["Samuel Batissou <samuelbatissou@gmail.com>"]
 edition = "2018"
 
@@ -12,7 +12,7 @@ crate_type = ["cdylib"]
 goban = {git = "https://gitlab.com/Sabati/goban.git", branch = "dev"}
 
 [dependencies.pyo3]
-version = "0.8.5"
+version = "0.9.0-alpha.1"
 features = ["extension-module"]
 
 [target.x86_64-apple-darwin]
