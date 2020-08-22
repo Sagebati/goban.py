@@ -10,14 +10,6 @@ build:
   script:
     - maturin build -i python3
 
-publish_latest:
-  stage: deploy
-  image: samblaise/maturin
-  only:
-    - master
-  script:
-    - maturin publish -i python3 -u $user -p $password
-
 publish3.5:
   stage: deploy
   image: samblaise/maturin:3.5
@@ -50,7 +42,7 @@ publish-latest:
   only:
     - master
   script:
-    - maturin publish -i python3.8 -u $user -p $password
+    - maturin publish -i python3 -u $user -p $password
 
       
 
