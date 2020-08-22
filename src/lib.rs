@@ -108,7 +108,6 @@ pub struct PyGame {
 impl PyGame {
     #[new]
     /// By default the rule are chinese
-    ///
     pub fn new(size: usize) -> Self {
         let s = match size {
             9 => GobanSizes::Nine,
@@ -132,9 +131,7 @@ impl PyGame {
         Ok(self.game.goban().size())
     }
 
-    ///
     /// Return the underlying goban
-    ///
     pub fn goban(&self) -> PyResult<PyGoban> {
         Ok(PyGoban {
             goban: self.game.goban().clone(),
@@ -146,9 +143,7 @@ impl PyGame {
         Ok(vec_color_to_u8(self.game.goban().raw()))
     }
 
-    ///
     /// Get the goban in a split.
-    ///
     pub fn raw_goban_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
         Ok(
             vec_color_to_raw_split(self.game.goban().raw())
