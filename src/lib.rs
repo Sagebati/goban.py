@@ -40,18 +40,18 @@ fn vec_color_to_raw_split(vec: Vec<Color>) -> (Vec<bool>, Vec<bool>) {
 
 #[pymodule]
 pub fn libgoban(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_class::<IGoban>()?;
-    m.add_class::<IGame>()?;
+    m.add_class::<PyGoban>()?;
+    m.add_class::<PyGame>()?;
     Ok(())
 }
 
 #[pyclass(name = Goban)]
 #[derive(Clone, Hash, Debug)]
-pub struct IGoban {
+pub struct PyGoban {
     goban: Goban,
 }
 
-impl Deref for IGoban {
+impl Deref for PyGoban {
     type Target = Goban;
 
     fn deref(&self) -> &Self::Target {
@@ -59,29 +59,29 @@ impl Deref for IGoban {
     }
 }
 
-impl From<Goban> for IGoban {
+impl From<Goban> for PyGoban {
     fn from(goban: Goban) -> Self {
-        IGoban {
+        PyGoban {
             goban
         }
     }
 }
 
-impl From<&Goban> for IGoban {
+impl From<&Goban> for PyGoban {
     fn from(goban: &Goban) -> Self {
-        IGoban {
+        PyGoban {
             goban: goban.clone()
         }
     }
 }
 
 #[pymethods]
-impl IGoban {
+impl PyGoban {
     #[new]
-    pub fn __new__(obj: &PyRawObject, arr: Vec<u8>) {
+    pub fn new(arr: Vec<u8>)->Self {
         let stones: Vec<Color> = arr.into_iter().map(|v| v.into()).collect();
-        IGoban {
-            goban: Goban::from_array(&stones, Order::RowMajor),
+        PyGoban {
+            goban: Goban::from_array(&stones, Order::RowMajor)
         }
     }
 
@@ -135,8 +135,8 @@ impl PyGame {
     ///
     /// Return the underlying goban
     ///
-    pub fn goban(&self) -> PyResult<IGoban> {
-        Ok(IGoban {
+    pub fn goban(&self) -> PyResult<PyGoban> {
+        Ok(PyGoban {
             goban: self.game.goban().clone(),
         })
     }
