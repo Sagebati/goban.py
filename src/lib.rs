@@ -1,9 +1,7 @@
-#![feature(specialization)]
-
 extern crate pyo3;
 
 use goban::pieces::goban::Goban;
-use goban::pieces::stones::Color;
+use goban::pieces::stones::{Color, Stone};
 use goban::pieces::util::coord::{Point, Order};
 use goban::rules::{GobanSizes, Move};
 use goban::rules::Player;
@@ -12,6 +10,7 @@ use pyo3::prelude::*;
 use goban::rules::Player::{White, Black};
 use std::ops::Deref;
 use goban::rules::game::Game;
+use pyo3::exceptions;
 
 
 fn to_color(b: bool) -> Color {
@@ -42,7 +41,7 @@ fn vec_color_to_raw_split(vec: Vec<Color>) -> (Vec<bool>, Vec<bool>) {
 #[pymodule]
 pub fn libgoban(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<IGoban>()?;
-    m.add_class::<IGame>()?;
+    m.add_class::<PyGame>()?;
     Ok(())
 }
 
@@ -79,21 +78,19 @@ impl From<&Goban> for IGoban {
 #[pymethods]
 impl IGoban {
     #[new]
-    pub fn __new__(obj: &PyRawObject, arr: Vec<u8>) {
+    pub fn new(arr: Vec<u8>) -> Self {
         let stones: Vec<Color> = arr.into_iter().map(|v| v.into()).collect();
-        obj.init({
-            IGoban {
-                goban: Goban::from_array(&stones, Order::RowMajor),
-            }
-        });
+        IGoban {
+            goban: Goban::from_array(&stones, Order::RowMajor),
+        }
     }
 
     pub fn raw(&self) -> PyResult<Vec<u8>> {
-        Ok(vec_color_to_u8(self.tab()))
+        Ok(vec_color_to_u8(self.goban.raw()))
     }
 
     pub fn raw_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
-        Ok(vec_color_to_raw_split(self.tab()))
+        Ok(vec_color_to_raw_split(self.goban.raw()))
     }
 
     pub fn pretty_string(&self) -> PyResult<String> {
@@ -101,19 +98,19 @@ impl IGoban {
     }
 }
 
-#[pyclass]
+#[pyclass(name = Game)]
 #[derive(Clone)]
-pub struct IGame {
+pub struct PyGame {
     game: Game,
 }
 
 #[pymethods]
-impl IGame {
+impl PyGame {
     #[new]
     ///
     /// By default the rule are chinese
     ///
-    pub fn __new__(obj: &PyRawObject, size: usize) {
+    pub fn new(size: usize) -> Self {
         let s = match size {
             9 => GobanSizes::Nine,
             13 => GobanSizes::Thirteen,
@@ -121,11 +118,9 @@ impl IGame {
             _ => panic!("You must choose 9, 13, 19"),
         };
 
-        obj.init({
-            IGame {
-                game: Game::new(s, Rule::Chinese),
-            }
-        });
+        PyGame {
+            game: Game::new(s, Rule::Chinese)
+        }
     }
 
     pub fn put_handicap(&mut self, coords: Vec<Point>) -> PyResult<()> {
@@ -133,24 +128,21 @@ impl IGame {
         Ok(())
     }
 
-    pub fn size(&self) -> PyResult<usize> {
+    /// Returns the size of the goban (height, width)
+    pub fn size(&self) -> PyResult<(u8, u8)> {
         Ok(self.game.goban().size())
     }
 
-    ///
     /// Return the underlying goban
-    ///
     pub fn goban(&self) -> PyResult<IGoban> {
         Ok(IGoban {
             goban: self.game.goban().clone(),
         })
     }
 
-    ///
     /// Get the goban in a Vec<u8>
-    ///
     pub fn raw_goban(&self) -> PyResult<Vec<u8>> {
-        Ok(vec_color_to_u8(self.game.goban().tab()))
+        Ok(vec_color_to_u8(self.game.goban().raw()))
     }
 
     ///
@@ -158,7 +150,7 @@ impl IGame {
     ///
     pub fn raw_goban_split(&self) -> PyResult<(Vec<bool>, Vec<bool>)> {
         Ok(
-            vec_color_to_raw_split(self.game.goban().tab())
+            vec_color_to_raw_split(self.game.goban().raw())
         )
     }
 
@@ -212,16 +204,16 @@ impl IGame {
     /// panics if the game is not finished
     ///
     pub fn get_winner(&self) -> PyResult<Option<bool>> {
-        Ok(match self.game.outcome() {
-            None => panic!("Game not finished"),
-            Some(o) => match o.get_winner() {
+        match self.game.outcome() {
+            None => Err(exceptions::RuntimeError::py_err("Game not finished")),
+            Some(o) => Ok(match o.get_winner() {
                 None => None,
                 Some(o) => match o {
                     Black => Some(false),
                     White => Some(true)
                 }
-            }
-        })
+            })
+        }
     }
 
     /// Get the current turn
@@ -234,9 +226,8 @@ impl IGame {
         }
     }
 
-    ///
+    /// Play the move in the go game, pass None to Pass
     /// Don't check if the play is legal.
-    ///
     pub fn play(&mut self, play: Option<Point>) -> PyResult<()> {
         match play {
             Some(mov) => self.game.play(Move::Play(mov.0, mov.1)),
@@ -246,14 +237,13 @@ impl IGame {
     }
 
     pub fn play_and_clone(&mut self, play: Option<Point>) -> PyResult<Self> {
-        self.play(play);
+        self.play(play).unwrap();
         Ok(self.clone())
     }
 
-    /// Resign
-    /// player
-    /// true White
-    /// false Black
+    /// Resign passing
+    /// true resigns White
+    /// false resigns Black
     pub fn resign(&mut self, player: bool) -> PyResult<()> {
         self.game.play(Move::Resign(
             if player { White } else { Black }
@@ -266,12 +256,13 @@ impl IGame {
         Ok(self.game.legals().collect())
     }
 
-    pub fn calculate_territories(&self) -> PyResult<(f32, f32)> {
+    pub fn calculate_territories(&self) -> PyResult<(usize, usize)> {
         Ok(self.game.goban().calculate_territories())
     }
 
-    pub fn is_point_an_eye(&self, point: Point, color: bool) -> bool {
-        self.game.goban().is_point_an_eye(point, to_color(color))
+    /// Check is the point is an eye
+    pub fn is_point_an_eye(&self, point: Point, player: bool) -> bool {
+        self.game.check_eye(Stone { coordinates: point, color: to_color(player) })
     }
 
     pub fn display_goban(&self) -> PyResult<()> {
