@@ -1,6 +1,6 @@
 [package]
-name = "libgoban"
-version = "0.7.0"
+name = "goban"
+version = "0.8.0"
 authors = ["Samuel Batissou <samuelbatissou@gmail.com>"]
 edition = "2018"
 
