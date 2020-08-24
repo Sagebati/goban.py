@@ -13,6 +13,7 @@ use goban::rules::game::Game;
 use pyo3::exceptions;
 
 
+#[inline]
 fn to_color(b: bool) -> Color {
     match b {
         true => Color::White,
@@ -20,10 +21,12 @@ fn to_color(b: bool) -> Color {
     }
 }
 
+#[inline]
 fn vec_color_to_u8(vec: Vec<Color>) -> Vec<u8> {
-    vec.iter().map(|color| *color as u8).collect()
+    vec.into_iter().map(|color| color as u8).collect()
 }
 
+#[inline]
 fn vec_color_to_raw_split(vec: Vec<Color>) -> (Vec<bool>, Vec<bool>) {
     let mut black_stones = vec![false; vec.len()];
     let mut white_stones = vec![false; vec.len()];

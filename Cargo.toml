@@ -10,6 +10,7 @@ crate_type = ["cdylib"]
 
 [dependencies]
 goban = {git = "https://gitlab.com/Sabati/goban.git", branch = "dev", features = ["thread-safe"]}
+safe-transmute = "0.11.0"
 
 [dependencies.pyo3]
 version = "0.11.1"
