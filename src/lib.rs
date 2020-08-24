@@ -12,12 +12,20 @@ use std::ops::Deref;
 use goban::rules::game::Game;
 use pyo3::exceptions;
 
-
 #[inline]
 fn to_color(b: bool) -> Color {
     match b {
         true => Color::White,
         false => Color::Black
+    }
+}
+
+#[inline]
+fn to_bit_tuple(b: Color) -> (bool, bool) {
+    match b {
+        Color::Black => (true, false),
+        Color::White => (false, true),
+        Color::None => (false, false)
     }
 }
 
@@ -28,17 +36,7 @@ fn vec_color_to_u8(vec: Vec<Color>) -> Vec<u8> {
 
 #[inline]
 fn vec_color_to_raw_split(vec: Vec<Color>) -> (Vec<bool>, Vec<bool>) {
-    let mut black_stones = vec![false; vec.len()];
-    let mut white_stones = vec![false; vec.len()];
-
-    for i in 0..vec.len() {
-        match vec[i] {
-            Color::Black => black_stones[i] = true,
-            Color::White => white_stones[i] = true,
-            _ => ()
-        }
-    }
-    (black_stones, white_stones)
+    vec.into_iter().map(to_bit_tuple).unzip()
 }
 
 #[pymodule]
@@ -81,7 +79,7 @@ impl From<&Goban> for PyGoban {
 #[pymethods]
 impl PyGoban {
     #[new]
-    pub fn new(arr: Vec<u8>)->Self {
+    pub fn new(arr: Vec<u8>) -> Self {
         let stones: Vec<Color> = arr.into_iter().map(|v| v.into()).collect();
         PyGoban {
             goban: Goban::from_array(&stones, Order::RowMajor)
